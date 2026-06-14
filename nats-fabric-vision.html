@@ -187,9 +187,26 @@
     nav button{flex:none;font-size:11px;padding:7px 10px;white-space:nowrap}
     main{padding:12px 10px}
     .vhead h2{font-size:20px}
+    /* pull overlays out of the canvas and stack them below */
+    .fabric-wrap{overflow:visible}
+    #fabric{border-radius:14px 14px 0 0}
+    .ov-feed{
+      display:block;position:static;width:100%;max-width:none;
+      border-radius:0;border-left:none;border-right:none;border-top:none;
+      backdrop-filter:none;
+    }
+    #feed{max-height:180px}
+    .ov-legend{
+      display:block;position:static;width:100%;max-width:none;
+      border-radius:0 0 14px 14px;border-left:none;border-right:none;
+      backdrop-filter:none;
+      display:flex;flex-direction:row;flex-wrap:wrap;gap:4px;padding:10px 14px;
+    }
+    .ov-legend .lt{width:100%;margin-bottom:4px}
+    .ov-legend .row{flex:none}
     .ov-detail{
       display:block;
-      position:static;width:100%;max-width:none;border-radius:0 0 14px 14px;
+      position:static;width:100%;max-width:none;border-radius:0;
       border-top:1px solid var(--border2);backdrop-filter:none;
       background:var(--panel-solid);
     }
