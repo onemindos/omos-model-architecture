@@ -187,29 +187,39 @@
     nav button{flex:none;font-size:11px;padding:7px 10px;white-space:nowrap}
     main{padding:12px 10px}
     .vhead h2{font-size:20px}
-    /* pull overlays out of the canvas and stack them below */
-    .fabric-wrap{overflow:visible}
-    #fabric{border-radius:14px 14px 0 0}
-    .ov-feed{
-      display:block;position:static;width:100%;max-width:none;
-      border-radius:0;border-left:none;border-right:none;border-top:none;
-      backdrop-filter:none;
+
+    /* fabric-wrap becomes a flex column so we can reorder panels with gap */
+    .fabric-wrap{
+      display:flex;flex-direction:column;gap:10px;
+      overflow:visible;border:none;background:none;border-radius:0;
     }
-    #feed{max-height:180px}
-    .ov-legend{
-      display:block;position:static;width:100%;max-width:none;
-      border-radius:0 0 14px 14px;border-left:none;border-right:none;
-      backdrop-filter:none;
-      display:flex;flex-direction:row;flex-wrap:wrap;gap:4px;padding:10px 14px;
+    #fabric{
+      order:0;border-radius:14px;
+      border:1px solid var(--border);
     }
-    .ov-legend .lt{width:100%;margin-bottom:4px}
-    .ov-legend .row{flex:none}
+    /* node detail — first below canvas */
     .ov-detail{
-      display:block;
-      position:static;width:100%;max-width:none;border-radius:0;
-      border-top:1px solid var(--border2);backdrop-filter:none;
-      background:var(--panel-solid);
+      order:1;position:static;width:100%;max-width:none;
+      border-radius:14px;border:1px solid var(--border);
+      backdrop-filter:none;background:var(--panel-solid);
     }
+    /* message class legend — second */
+    .ov-legend{
+      order:2;display:flex;position:static;width:100%;max-width:none;
+      flex-direction:row;flex-wrap:wrap;gap:6px;padding:12px 14px;
+      border-radius:14px;border:1px solid var(--border);
+      backdrop-filter:none;background:var(--panel-solid);
+    }
+    .ov-legend .lt{width:100%;margin-bottom:2px}
+    .ov-legend .row{flex:none}
+    /* live subject feed — last */
+    .ov-feed{
+      order:3;display:block;position:static;width:100%;max-width:none;
+      border-radius:14px;border:1px solid var(--border);
+      backdrop-filter:none;
+    }
+    #feed{max-height:200px}
+
     .hint{display:none}
     .ov-stats{gap:6px}
     .stat{min-width:72px;padding:7px 10px}
