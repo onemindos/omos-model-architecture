@@ -6,6 +6,8 @@
 <title>OneMind · Sovereign Intelligence Network</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin=""/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
 <style>
 :root {
   --bg: #020812;
@@ -1139,33 +1141,28 @@ Result: intercept drone airborne
     <p>NYC generates open real-time data across transit, emergency, weather, and infrastructure. One Mind ingests all of it through NATS, rendering a live operating picture of New York City.</p>
   </div>
 
-  <!-- NYC MAP — Leaflet primary / canvas-grid fallback -->
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin=""/>
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
-
-  <div style="position:relative;border-radius:16px;overflow:hidden;border:1px solid var(--border);">
-    <!-- Leaflet map layer -->
-    <div id="nyc-map" style="width:100%;height:640px;background:#060f1e;"></div>
-    <!-- Canvas sits on top of Leaflet for animated trains/buses -->
-    <canvas id="nyc-canvas" style="position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;border-radius:16px;"></canvas>
-
-    <!-- Legend -->
-    <div id="nyc-legend" style="position:absolute;top:14px;right:14px;z-index:1000;background:rgba(2,8,18,.92);border:1px solid var(--border);border-radius:10px;padding:10px 14px;font-size:11px;font-family:'JetBrains Mono',monospace;backdrop-filter:blur(8px);max-width:200px;">
+  <!-- NYC MAP — Leaflet base + canvas animation overlay + NATS feed -->
+  <div id="nyc-wrapper" style="position:relative;width:100%;height:640px;border-radius:16px;overflow:hidden;border:1px solid var(--border);">
+    <!-- Leaflet fills the wrapper -->
+    <div id="nyc-map" style="position:absolute;inset:0;z-index:1;"></div>
+    <!-- Canvas overlaid exactly on top — trains/buses/routes drawn here -->
+    <canvas id="nyc-canvas" style="position:absolute;inset:0;z-index:2;pointer-events:none;"></canvas>
+    <!-- Legend panel — above canvas -->
+    <div id="nyc-legend" style="position:absolute;top:14px;right:14px;z-index:3;background:rgba(2,8,18,.92);border:1px solid var(--border);border-radius:10px;padding:10px 14px;font-family:'JetBrains Mono',monospace;backdrop-filter:blur(8px);max-width:200px;">
       <div style="font-weight:700;color:var(--core);margin-bottom:8px;letter-spacing:1.5px;font-size:10px;">TRANSIT LEGEND</div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px 12px;" id="legend-items"></div>
       <hr style="border:none;border-top:1px solid var(--border);margin:8px 0;">
       <div style="color:var(--muted);font-size:10px;" id="nyc-stats">Loading...</div>
       <div id="nyc-map-mode" style="color:var(--muted2);font-size:9px;margin-top:4px;letter-spacing:.5px;">MAP: LOADING…</div>
     </div>
-
-    <!-- NATS feed overlay -->
-    <div style="position:absolute;bottom:14px;left:14px;right:14px;z-index:1000;background:rgba(2,8,18,.80);border:1px solid rgba(0,255,229,.18);border-radius:8px;padding:8px 12px;font-family:'JetBrains Mono',monospace;font-size:11px;backdrop-filter:blur(6px);">
+    <!-- NATS feed ticker — above canvas -->
+    <div style="position:absolute;bottom:14px;left:14px;right:14px;z-index:3;background:rgba(2,8,18,.82);border:1px solid rgba(0,255,229,.22);border-radius:8px;padding:8px 12px;font-family:'JetBrains Mono',monospace;font-size:11px;backdrop-filter:blur(6px);">
       <span style="color:var(--core);">NATS ▶</span>
       <span id="nyc-feed-ticker" style="color:var(--muted);margin-left:8px;">tel.mta.subway.1.train_001 · {lat:40.7558,lon:-73.9870,speed:34,next:"Times Sq"}</span>
     </div>
   </div>
   <p style="text-align:center;font-size:11px;color:var(--muted2);margin-top:8px;font-family:'JetBrains Mono',monospace;">
-    Real NYC map (streets · Central Park · water) — trains + buses animated on actual GTFS route corridors via NATS
+    CartoDB dark map (real streets · Central Park · rivers) — subway + bus routes animated over actual geography via NATS
   </p>
 
   <hr class="divider">
@@ -2130,15 +2127,7 @@ function startFeedTicker() {
 // ── CANVAS DRAW ENGINE (runs over both Leaflet and fallback) ───────
 function startCanvasAnimation(C, allVehicles, fallbackMode) {
   const ctx = C.getContext('2d');
-
-  function resize() {
-    C.width  = C.offsetWidth  * window.devicePixelRatio;
-    C.height = C.offsetHeight * window.devicePixelRatio;
-    ctx.setTransform(1,0,0,1,0,0);
-    ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
-  }
-  resize();
-  window.addEventListener('resize', resize);
+  // NOTE: canvas sizing is handled by syncCanvas() in initNYC — do NOT resize here
 
   function drawFallbackBase() {
     // ── CANVAS-GRID BASE MAP (fallback only) ─────────────────────
@@ -2373,18 +2362,30 @@ function initNYC() {
   if (nycInit) return;
   nycInit = true;
 
-  const C = document.getElementById('nyc-canvas');
-  if (!C) return;
+  const wrapper = document.getElementById('nyc-wrapper');
+  const C       = document.getElementById('nyc-canvas');
+  const mapDiv  = document.getElementById('nyc-map');
+  if (!C || !wrapper) return;
 
   buildLegend();
   startFeedTicker();
 
-  // Try Leaflet first — dark OSM tile layer
-  function tryLeaflet() {
-    if (typeof L === 'undefined') return false;
-    const mapDiv = document.getElementById('nyc-map');
-    if (!mapDiv) return false;
+  // Size canvas to match wrapper exactly (CSS pixels + devicePixelRatio)
+  function syncCanvas() {
+    const w = wrapper.offsetWidth;
+    const h = wrapper.offsetHeight;
+    C.style.width  = w + 'px';
+    C.style.height = h + 'px';
+    C.width  = w * window.devicePixelRatio;
+    C.height = h * window.devicePixelRatio;
+    const ctx = C.getContext('2d');
+    ctx.setTransform(1,0,0,1,0,0);
+    ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+  }
 
+  // Try Leaflet — dark CartoDB tiles
+  function tryLeaflet() {
+    if (typeof L === 'undefined' || !mapDiv) return false;
     try {
       leafletMap = L.map('nyc-map', {
         center: [40.73, -73.97],
@@ -2394,7 +2395,6 @@ function initNYC() {
         scrollWheelZoom: true,
       });
 
-      // Dark Carto tile layer — looks great with neon overlays
       L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
         attribution: '© <a href="https://www.openstreetmap.org/copyright">OSM</a> © <a href="https://carto.com/">Carto</a>',
         subdomains: 'abcd',
@@ -2402,45 +2402,34 @@ function initNYC() {
       }).addTo(leafletMap);
 
       usingLeaflet = true;
-
       const modeEl = document.getElementById('nyc-map-mode');
       if (modeEl) modeEl.textContent = 'MAP: OSM STREETS ✓';
 
-      // Wait for map to be ready, then init canvas overlay
       leafletMap.whenReady(() => {
-        // Sync canvas size with map container
-        const syncSize = () => {
-          C.style.width  = mapDiv.offsetWidth  + 'px';
-          C.style.height = mapDiv.offsetHeight + 'px';
-        };
-        syncSize();
-        leafletMap.on('resize move zoom', syncSize);
+        syncCanvas();
+        // Re-sync on every map interaction
+        leafletMap.on('move zoom resize', syncCanvas);
+        window.addEventListener('resize', () => { leafletMap.invalidateSize(); syncCanvas(); });
 
-        // Init all vehicles with map projection
         const allVehicles = [];
         SUBWAY_ROUTES.forEach(r => allVehicles.push(...createVehicles(r, false, C)));
         BUS_ROUTES.forEach(r   => allVehicles.push(...createVehicles(r, true,  C)));
         startCanvasAnimation(C, allVehicles, false);
       });
-
       return true;
     } catch(e) {
       console.warn('Leaflet init failed:', e);
+      usingLeaflet = false;
       return false;
     }
   }
 
   function fallbackCanvas() {
-    // Hide the Leaflet div — canvas takes over full space
-    const mapDiv = document.getElementById('nyc-map');
     if (mapDiv) mapDiv.style.display = 'none';
-    C.style.position = 'relative';
-    C.style.display  = 'block';
-    C.style.width    = '100%';
-    C.style.height   = '640px';
-
     const modeEl = document.getElementById('nyc-map-mode');
     if (modeEl) modeEl.textContent = 'MAP: CANVAS GRID (offline)';
+    syncCanvas();
+    window.addEventListener('resize', syncCanvas);
 
     const allVehicles = [];
     SUBWAY_ROUTES.forEach(r => allVehicles.push(...createVehicles(r, false, C)));
@@ -2448,19 +2437,17 @@ function initNYC() {
     startCanvasAnimation(C, allVehicles, true);
   }
 
-  // Leaflet loads asynchronously — wait up to 3 s then fall back
   if (typeof L !== 'undefined') {
     if (!tryLeaflet()) fallbackCanvas();
   } else {
-    // Script might still be loading
     let waited = 0;
-    const interval = setInterval(() => {
+    const iv = setInterval(() => {
       waited += 200;
       if (typeof L !== 'undefined') {
-        clearInterval(interval);
+        clearInterval(iv);
         if (!tryLeaflet()) fallbackCanvas();
       } else if (waited >= 3000) {
-        clearInterval(interval);
+        clearInterval(iv);
         fallbackCanvas();
       }
     }, 200);
