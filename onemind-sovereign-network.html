@@ -1,0 +1,1634 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OneMind · Sovereign Intelligence Network</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #020812;
+  --bg2: #060f1e;
+  --bg3: #0a1628;
+  --panel: rgba(8,18,36,.85);
+  --border: #1a2e4a;
+  --border2: #2a4866;
+  --ink: #e9f1fb;
+  --muted: #7d93ad;
+  --muted2: #4a6280;
+
+  --core:   #00ffe5;
+  --core2:  #00b8d4;
+  --green:  #00ff9f;
+  --yellow: #ffd700;
+  --orange: #ff8c00;
+  --red:    #ff3366;
+  --purple: #a855f7;
+  --blue:   #3b82f6;
+  --pink:   #f472b6;
+  --teal:   #14b8a6;
+  --amber:  #f59e0b;
+
+  --nats:   #00ffe5;
+  --tak:    #22c55e;
+  --const:  #f59e0b;
+  --hermes: #a855f7;
+  --mta:    #3b82f6;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: 'Inter', system-ui, sans-serif;
+  overflow-x: hidden;
+  line-height: 1.5;
+}
+
+/* SCANLINE OVERLAY */
+body::before {
+  content: '';
+  position: fixed; inset: 0; z-index: 999; pointer-events: none;
+  background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,255,229,.012) 2px, rgba(0,255,229,.012) 4px);
+}
+
+/* HEADER */
+header {
+  position: sticky; top: 0; z-index: 100;
+  display: flex; align-items: center; gap: 16px; flex-wrap: wrap;
+  padding: 14px 28px;
+  background: rgba(2,8,18,.92);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border);
+}
+.brand { display: flex; align-items: center; gap: 12px; }
+.brand .logo {
+  width: 36px; height: 36px; border-radius: 10px;
+  background: conic-gradient(from 200deg, var(--core), var(--purple), var(--blue), var(--core));
+  box-shadow: 0 0 24px rgba(0,255,229,.5);
+  position: relative; flex-shrink: 0;
+}
+.brand .logo::after { content:''; position:absolute; inset:7px; border-radius:5px; background:var(--bg2); }
+.brand h1 { font-size: 16px; font-weight: 900; letter-spacing: .3px; }
+.brand h1 span { color: var(--core); }
+.brand .sub { font-size: 11px; color: var(--muted); font-weight: 500; letter-spacing: .5px; }
+.hdr-badges { display:flex; gap:8px; margin-left:auto; flex-wrap:wrap; align-items:center; }
+.hdr-badge {
+  font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 20px;
+  letter-spacing: .8px; text-transform: uppercase;
+  border: 1px solid currentColor;
+}
+.live-dot {
+  display: inline-block; width:8px; height:8px; border-radius:50%;
+  background: var(--green); margin-right:5px;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+@keyframes pulse { 0%,100%{ box-shadow:0 0 0 0 rgba(0,255,159,.6); } 50%{ box-shadow:0 0 0 6px rgba(0,255,159,0); } }
+
+/* NAV TABS */
+.nav-tabs {
+  display: flex; gap: 0; background: var(--bg3); border: 1px solid var(--border);
+  border-radius: 12px; padding: 4px; margin: 24px 28px 0; flex-wrap: wrap; gap: 2px;
+}
+.nav-tab {
+  flex: 1; min-width: 100px; padding: 9px 14px; border-radius: 9px; border: none;
+  background: transparent; color: var(--muted); font-family: inherit; font-size: 12.5px;
+  font-weight: 600; cursor: pointer; transition: .2s; letter-spacing: .3px; white-space: nowrap;
+  text-align: center;
+}
+.nav-tab:hover { color: var(--ink); background: rgba(255,255,255,.04); }
+.nav-tab.active { background: linear-gradient(135deg, var(--core), var(--core2)); color: #000; }
+
+/* MAIN */
+main { padding: 28px; max-width: 1600px; margin: 0 auto; }
+.view { display: none; }
+.view.active { display: block; animation: fadein .4s ease; }
+@keyframes fadein { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:none} }
+
+/* SECTION HEADER */
+.sec-head { margin-bottom: 28px; }
+.sec-head .eyebrow {
+  font-size: 11px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase;
+  color: var(--core); margin-bottom: 8px;
+}
+.sec-head h2 { font-size: 32px; font-weight: 900; letter-spacing: -.5px; line-height: 1.15; }
+.sec-head h2 em { font-style: normal; color: var(--core); }
+.sec-head p { color: var(--muted); font-size: 15px; margin-top: 10px; max-width: 820px; line-height: 1.7; }
+
+/* CARDS GRID */
+.grid { display: grid; gap: 16px; }
+.g2 { grid-template-columns: repeat(2, 1fr); }
+.g3 { grid-template-columns: repeat(3, 1fr); }
+.g4 { grid-template-columns: repeat(4, 1fr); }
+@media(max-width:900px){ .g3,.g4{ grid-template-columns: repeat(2,1fr); } }
+@media(max-width:600px){ .g2,.g3,.g4{ grid-template-columns: 1fr; } }
+
+.card {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 20px;
+  transition: .2s;
+  position: relative;
+  overflow: hidden;
+}
+.card::before {
+  content: ''; position: absolute; inset: 0; border-radius: 16px;
+  background: linear-gradient(135deg, rgba(255,255,255,.015), transparent);
+  pointer-events: none;
+}
+.card:hover { border-color: var(--border2); transform: translateY(-2px); box-shadow: 0 8px 40px rgba(0,0,0,.4); }
+.card .card-icon { font-size: 28px; margin-bottom: 12px; }
+.card h3 { font-size: 14px; font-weight: 700; margin-bottom: 6px; }
+.card p { font-size: 13px; color: var(--muted); line-height: 1.6; }
+.card .tag {
+  display: inline-block; font-size: 10px; font-weight: 700; padding: 2px 8px;
+  border-radius: 12px; text-transform: uppercase; letter-spacing: .8px;
+  margin-top: 10px; border: 1px solid currentColor;
+}
+
+/* ACCENT BORDERS */
+.accent-core   { border-left: 3px solid var(--core); }
+.accent-tak    { border-left: 3px solid var(--tak); }
+.accent-const  { border-left: 3px solid var(--const); }
+.accent-hermes { border-left: 3px solid var(--hermes); }
+.accent-mta    { border-left: 3px solid var(--mta); }
+.accent-red    { border-left: 3px solid var(--red); }
+.accent-pink   { border-left: 3px solid var(--pink); }
+
+/* LATENCY BAR */
+.lat-bar { margin: 28px 0; }
+.lat-bar-title { font-size: 12px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 2px; margin-bottom: 12px; }
+.lat-row { display: flex; align-items: center; gap: 12px; margin-bottom: 8px; }
+.lat-label { font-size: 12px; font-family:'JetBrains Mono',monospace; color: var(--muted); width: 220px; flex-shrink: 0; }
+.lat-track { flex: 1; height: 8px; background: var(--bg3); border-radius: 4px; overflow: hidden; }
+.lat-fill { height: 100%; border-radius: 4px; transition: width 1.5s ease; }
+.lat-val { font-size: 12px; font-family:'JetBrains Mono',monospace; font-weight: 700; width: 70px; text-align: right; }
+
+/* ARCHITECTURE DIAGRAM */
+.arch { background: var(--bg2); border: 1px solid var(--border); border-radius: 16px; padding: 24px; margin: 20px 0; }
+.arch-canvas { width:100%; overflow-x:auto; }
+.arch pre { font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--muted); line-height:1.7; white-space:pre; }
+
+/* FLOW DIAGRAM */
+.flow { display:flex; align-items:center; gap:0; flex-wrap:wrap; margin:20px 0; }
+.flow-step {
+  background:var(--bg3); border:1px solid var(--border); border-radius:12px;
+  padding:14px 16px; text-align:center; min-width:120px; flex:1;
+}
+.flow-step .fs-num { font-size:11px; font-weight:700; color:var(--core); letter-spacing:1px; margin-bottom:4px; }
+.flow-step .fs-label { font-size:12px; font-weight:700; }
+.flow-step .fs-sub { font-size:10.5px; color:var(--muted); margin-top:3px; font-family:'JetBrains Mono',monospace; }
+.flow-arrow { padding:0 8px; font-size:18px; color:var(--muted2); flex-shrink:0; }
+
+/* HERO CANVAS */
+#hero-canvas { width:100%; height:480px; display:block; border-radius:16px; border:1px solid var(--border); }
+
+/* SCENARIO BLOCK */
+.scenario {
+  background: var(--bg2); border: 1px solid var(--border); border-radius: 16px;
+  padding: 24px; margin-bottom: 20px; position:relative; overflow:hidden;
+}
+.scenario::before {
+  content:''; position:absolute; top:0; left:0; width:100%; height:3px;
+  background:linear-gradient(90deg, var(--core), var(--purple));
+}
+.scenario.tak::before { background:linear-gradient(90deg, var(--tak), var(--core)); }
+.scenario.const::before { background:linear-gradient(90deg, var(--const), var(--orange)); }
+.scenario.mta::before { background:linear-gradient(90deg, var(--mta), var(--purple)); }
+.scenario.bio::before { background:linear-gradient(90deg, var(--pink), var(--red)); }
+.scenario h3 { font-size: 18px; font-weight: 800; margin-bottom: 8px; }
+.scenario .scenario-badge {
+  display:inline-block; font-size:10px; font-weight:700; padding:3px 10px;
+  border-radius:20px; text-transform:uppercase; letter-spacing:.8px; margin-bottom:12px;
+  border:1px solid currentColor;
+}
+.scenario p { font-size:14px; color:var(--muted); line-height:1.7; margin-bottom:14px; }
+.scenario-flow { display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:10px; margin-top:14px; }
+.sf-step {
+  background:rgba(0,0,0,.3); border:1px solid var(--border); border-radius:10px;
+  padding:12px; text-align:center;
+}
+.sf-step .sf-icon { font-size:22px; margin-bottom:6px; }
+.sf-step .sf-label { font-size:12px; font-weight:700; }
+.sf-step .sf-sub { font-size:10.5px; color:var(--muted); margin-top:3px; font-family:'JetBrains Mono',monospace; }
+
+/* METRICS ROW */
+.metrics { display:flex; gap:16px; flex-wrap:wrap; margin:20px 0; }
+.metric {
+  background:var(--bg3); border:1px solid var(--border); border-radius:12px;
+  padding:16px 20px; flex:1; min-width:120px; text-align:center;
+}
+.metric .m-val { font-size:28px; font-weight:900; font-family:'JetBrains Mono',monospace; }
+.metric .m-label { font-size:11px; font-weight:600; color:var(--muted); text-transform:uppercase; letter-spacing:1px; margin-top:4px; }
+
+/* PULSE NODES */
+.node-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(180px,1fr)); gap:12px; margin:20px 0; }
+.node-card {
+  background:var(--bg3); border:1px solid var(--border); border-radius:12px;
+  padding:14px; display:flex; align-items:center; gap:12px;
+  transition:.2s; cursor:default;
+}
+.node-card:hover { border-color:var(--border2); background:var(--bg2); }
+.node-dot {
+  width:10px; height:10px; border-radius:50%; flex-shrink:0;
+  animation: pulse 2s ease-in-out infinite;
+}
+.node-dot.online { background:var(--green); }
+.node-dot.relay  { background:var(--yellow); animation-delay:.5s; }
+.node-dot.edge   { background:var(--blue); animation-delay:1s; }
+.node-dot.air    { background:var(--orange); animation-delay:.25s; }
+.node-dot.bio    { background:var(--pink); animation-delay:.75s; }
+.node-info .ni-name { font-size:13px; font-weight:700; }
+.node-info .ni-sub  { font-size:11px; color:var(--muted); font-family:'JetBrains Mono',monospace; }
+
+/* SUBJECT FEED */
+.subject-feed {
+  background:var(--bg2); border:1px solid var(--border); border-radius:14px;
+  padding:16px; font-family:'JetBrains Mono',monospace; font-size:12px;
+  height:280px; overflow-y:auto; position:relative;
+}
+.subject-feed .sf-header {
+  font-size:10px; font-weight:700; color:var(--muted); text-transform:uppercase;
+  letter-spacing:2px; margin-bottom:12px; position:sticky;top:0; background:var(--bg2); padding-bottom:8px;
+  border-bottom:1px solid var(--border);
+}
+.sf-line { display:flex; align-items:center; gap:10px; padding:4px 0; border-bottom:1px solid rgba(255,255,255,.04); }
+.sf-line .sf-time { color:var(--muted2); font-size:11px; width:55px; flex-shrink:0; }
+.sf-line .sf-subj { flex:1; }
+.sf-line .sf-sz   { color:var(--muted2); font-size:11px; width:50px; text-align:right; }
+.sf-line.tel  .sf-subj { color: var(--green); }
+.sf-line.cmd  .sf-subj { color: var(--yellow); }
+.sf-line.evt  .sf-subj { color: var(--blue); }
+.sf-line.voice .sf-subj { color: var(--pink); }
+.sf-line.saas .sf-subj  { color: var(--orange); }
+.sf-line.agent .sf-subj { color: var(--purple); }
+
+/* PROTOCOL TABLE */
+.proto-table { width:100%; border-collapse:collapse; font-size:13px; margin:16px 0; }
+.proto-table th {
+  text-align:left; padding:10px 14px; font-size:11px; font-weight:700;
+  color:var(--muted); text-transform:uppercase; letter-spacing:1.5px;
+  border-bottom:1px solid var(--border); background:var(--bg3);
+}
+.proto-table td { padding:10px 14px; border-bottom:1px solid var(--border); vertical-align:top; }
+.proto-table tr:last-child td { border-bottom:none; }
+.proto-table tr:hover td { background:rgba(255,255,255,.02); }
+.badge {
+  display:inline-block; font-size:10px; font-weight:700; padding:2px 8px;
+  border-radius:10px; font-family:'JetBrains Mono',monospace; white-space:nowrap;
+}
+.b-green  { background:rgba(0,255,159,.12); color:var(--green); border:1px solid rgba(0,255,159,.3); }
+.b-yellow { background:rgba(255,215,0,.12);  color:var(--yellow); border:1px solid rgba(255,215,0,.3); }
+.b-blue   { background:rgba(59,130,246,.15); color:#93bbfd; border:1px solid rgba(59,130,246,.3); }
+.b-purple { background:rgba(168,85,247,.15); color:#c084fc; border:1px solid rgba(168,85,247,.3); }
+.b-orange { background:rgba(255,140,0,.12);  color:var(--orange); border:1px solid rgba(255,140,0,.3); }
+.b-red    { background:rgba(255,51,102,.12); color:#ff6688; border:1px solid rgba(255,51,102,.3); }
+.b-core   { background:rgba(0,255,229,.12);  color:var(--core); border:1px solid rgba(0,255,229,.3); }
+
+/* HERO SECTION */
+.hero {
+  background: linear-gradient(135deg, rgba(0,255,229,.04), rgba(168,85,247,.04));
+  border: 1px solid var(--border); border-radius: 20px;
+  padding: 48px 40px; text-align:center; margin-bottom:32px;
+  position:relative; overflow:hidden;
+}
+.hero::before {
+  content:''; position:absolute; inset:0; border-radius:20px;
+  background:radial-gradient(ellipse 60% 40% at 50% 0%, rgba(0,255,229,.07), transparent 60%);
+  pointer-events:none;
+}
+.hero .equation {
+  font-size:22px; font-weight:900; letter-spacing:.5px;
+  background: linear-gradient(90deg, var(--core), var(--purple), var(--blue));
+  -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+  background-clip:text; margin-bottom:16px;
+}
+.hero h1 { font-size:48px; font-weight:900; letter-spacing:-1.5px; line-height:1.1; margin-bottom:16px; }
+.hero h1 span { color:var(--core); }
+.hero p { font-size:17px; color:var(--muted); max-width:740px; margin:0 auto; line-height:1.7; }
+.hero-tags { display:flex; gap:10px; justify-content:center; flex-wrap:wrap; margin-top:20px; }
+.hero-tag {
+  font-size:12px; font-weight:700; padding:6px 14px; border-radius:20px;
+  border:1px solid var(--border2); color:var(--muted); letter-spacing:.5px;
+  background:rgba(255,255,255,.04);
+}
+
+/* GLOW TEXT */
+.glow-core  { color:var(--core);   text-shadow:0 0 20px rgba(0,255,229,.5); }
+.glow-green { color:var(--green);  text-shadow:0 0 20px rgba(0,255,159,.5); }
+.glow-purple{ color:var(--purple); text-shadow:0 0 20px rgba(168,85,247,.5); }
+
+/* DIVIDER */
+.divider { border:none; border-top:1px solid var(--border); margin:32px 0; }
+
+/* MONO BLOCK */
+.mono-block {
+  background:var(--bg3); border:1px solid var(--border); border-radius:10px;
+  padding:14px 16px; font-family:'JetBrains Mono',monospace; font-size:12px;
+  color:var(--muted); line-height:1.8; overflow-x:auto; white-space:pre;
+}
+
+/* COMPARISON TABLE */
+.comp-table { width:100%; border-collapse:collapse; font-size:13px; margin:16px 0; }
+.comp-table th { padding:12px 16px; background:var(--bg3); border-bottom:1px solid var(--border); font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:1.5px; color:var(--muted); text-align:left; }
+.comp-table td { padding:12px 16px; border-bottom:1px solid var(--border); vertical-align:middle; }
+.comp-table tr:last-child td { border-bottom:none; }
+.comp-table .check { color:var(--green); font-size:16px; }
+.comp-table .cross { color:var(--red);   font-size:16px; }
+
+/* SCROLLBAR */
+::-webkit-scrollbar { width:6px; height:6px; }
+::-webkit-scrollbar-track { background:var(--bg2); }
+::-webkit-scrollbar-thumb { background:var(--border2); border-radius:3px; }
+
+/* FOOTER */
+footer {
+  text-align:center; padding:32px; color:var(--muted2); font-size:12px;
+  border-top:1px solid var(--border); margin-top:40px;
+}
+footer span { color:var(--core); }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <div class="brand">
+    <div class="logo"></div>
+    <div>
+      <h1>ONE<span>MIND</span></h1>
+      <div class="sub">Sovereign Intelligence Network</div>
+    </div>
+  </div>
+  <div class="hdr-badges">
+    <span class="hdr-badge" style="color:var(--green)"><span class="live-dot"></span>FABRIC ONLINE</span>
+    <span class="hdr-badge" style="color:var(--core)">NATS 2.10</span>
+    <span class="hdr-badge" style="color:var(--tak)">OTS v1.7.12</span>
+    <span class="hdr-badge" style="color:var(--const)">CONSTELLATION</span>
+    <span class="hdr-badge" style="color:var(--hermes)">LEGACY AI</span>
+  </div>
+</header>
+
+<!-- TABS -->
+<div class="nav-tabs">
+  <button class="nav-tab active" onclick="showView('overview')">🌐 Overview</button>
+  <button class="nav-tab" onclick="showView('fabric')">⚡ NATS Fabric</button>
+  <button class="nav-tab" onclick="showView('scenarios')">🎯 Live Scenarios</button>
+  <button class="nav-tab" onclick="showView('devices')">📡 All Devices</button>
+  <button class="nav-tab" onclick="showView('tak')">🗺 TAK + C4ISR</button>
+  <button class="nav-tab" onclick="showView('mta')">🚇 NYC Transit</button>
+  <button class="nav-tab" onclick="showView('vs')">⚖️ Capability</button>
+</div>
+
+<main>
+
+<!-- ══════════════════════════════════ OVERVIEW ══════════════════════════════════ -->
+<div id="view-overview" class="view active">
+
+  <div class="hero">
+    <div class="equation">HUMAN (Zeus) + AI (Legacy) = ONE MIND</div>
+    <h1>One Fabric.<br><span>Every Device. Every Signal.</span></h1>
+    <p>A sovereign intelligence network that spans every physical and digital domain — from drones circling your homestead to trains moving through New York City — unified on a single NATS message fabric with sub-millisecond internal latency.</p>
+    <div class="hero-tags">
+      <span class="hero-tag">0.1ms Internal</span>
+      <span class="hero-tag">NATS JetStream</span>
+      <span class="hero-tag">TAK / CoT Protocol</span>
+      <span class="hero-tag">Constellation C4ISR</span>
+      <span class="hero-tag">AI Guardian (Legacy)</span>
+      <span class="hero-tag">Starlink QUIC</span>
+      <span class="hero-tag">MAVLink Drones</span>
+      <span class="hero-tag">Human Biometrics</span>
+      <span class="hero-tag">Live City Transit</span>
+    </div>
+  </div>
+
+  <!-- LIVE CANVAS -->
+  <canvas id="hero-canvas"></canvas>
+  <p style="text-align:center;font-size:11px;color:var(--muted2);margin-top:8px;font-family:'JetBrains Mono',monospace;">
+    Simulated live message fabric — each pulse is a real NATS subject routed through the hub
+  </p>
+
+  <!-- METRICS -->
+  <div class="metrics" style="margin-top:24px;">
+    <div class="metric">
+      <div class="m-val glow-core" id="msg-count">0</div>
+      <div class="m-label">msgs / sec</div>
+    </div>
+    <div class="metric">
+      <div class="m-val" style="color:var(--tak)">14</div>
+      <div class="m-label">Device Classes</div>
+    </div>
+    <div class="metric">
+      <div class="m-val" style="color:var(--const)">∞</div>
+      <div class="m-label">Subject Space</div>
+    </div>
+    <div class="metric">
+      <div class="m-val glow-purple">0.1ms</div>
+      <div class="m-label">Internal Latency</div>
+    </div>
+    <div class="metric">
+      <div class="m-val" style="color:var(--green)">100%</div>
+      <div class="m-label">Uptime Target</div>
+    </div>
+  </div>
+
+  <!-- THREE LAYER STACK -->
+  <div class="sec-head" style="margin-top:36px;">
+    <div class="eyebrow">Architecture</div>
+    <h2>Three Layers. <em>One Fabric.</em></h2>
+    <p>Every system you build layers on top of this foundation. NATS is the spine. Constellation is the physical entity layer. TAK is the human awareness layer. Legacy AI binds them all.</p>
+  </div>
+
+  <div class="grid g3">
+    <div class="card accent-core">
+      <div class="card-icon">⚡</div>
+      <h3>Layer 1 — NATS Fabric</h3>
+      <p>The nervous system. Subject-based addressing. Every device publishes and subscribes. JetStream buffers every intermittent connection. 0.1ms on LAN, QUIC over satellite.</p>
+      <span class="tag" style="color:var(--core)">Spine</span>
+    </div>
+    <div class="card accent-const">
+      <div class="card-icon">🛸</div>
+      <h3>Layer 2 — Constellation C4ISR</h3>
+      <p>Vendor-agnostic physical entity data plane. Every drone, robot, car, sensor registered with entity_id. Telemetry, commands, events all on NATS streams. MapLibre live tracking.</p>
+      <span class="tag" style="color:var(--const)">Physical World</span>
+    </div>
+    <div class="card accent-tak">
+      <div class="card-icon">🎯</div>
+      <h3>Layer 3 — TAK / OTS</h3>
+      <p>Military-grade situational awareness. CoT protocol. ATAK on your phone. WinTAK on desktop. OTS v1.7.12 already running on your stack. Every person, drone, threat visible.</p>
+      <span class="tag" style="color:var(--tak)">Situational Awareness</span>
+    </div>
+  </div>
+
+  <div class="grid g2" style="margin-top:16px;">
+    <div class="card accent-hermes">
+      <div class="card-icon">🧠</div>
+      <h3>Layer 4 — Legacy AI (Hermes)</h3>
+      <p>The intelligence layer. Subscribes to all subjects simultaneously. Evaluates patterns, triggers automations, dispatches drones, answers questions in real-time from the full data picture. Never waits on HTTP — all decisions on NATS.</p>
+      <span class="tag" style="color:var(--hermes)">AI Brain</span>
+    </div>
+    <div class="card accent-mta">
+      <div class="card-icon">🗺</div>
+      <h3>WorldWideView — Common Operating Picture</h3>
+      <p>CesiumJS 3D globe. All nodes rendered live. Drones, trains, persons, threats, geofences — all on one map. Any browser. Any device. No app install required.</p>
+      <span class="tag" style="color:var(--mta)">Live COP</span>
+    </div>
+  </div>
+
+  <!-- LATENCY HIERARCHY -->
+  <hr class="divider">
+  <div class="sec-head">
+    <div class="eyebrow">Performance</div>
+    <h2>Latency <em>Hierarchy</em> — Defend It</h2>
+    <p>The 0.1ms is internal. Physics sets the floor beyond LAN. The architecture ensures your critical path never touches slow transports.</p>
+  </div>
+
+  <div class="lat-bar">
+    <div class="lat-bar-title">End-to-end latency by transport</div>
+    <div class="lat-row">
+      <div class="lat-label">In-process (Go embed)</div>
+      <div class="lat-track"><div class="lat-fill" style="width:1%;background:var(--core)"></div></div>
+      <div class="lat-val" style="color:var(--core)">0.001ms</div>
+    </div>
+    <div class="lat-row">
+      <div class="lat-label">Loopback (same host)</div>
+      <div class="lat-track"><div class="lat-fill" style="width:2%;background:var(--green)"></div></div>
+      <div class="lat-val" style="color:var(--green)">0.01ms</div>
+    </div>
+    <div class="lat-row">
+      <div class="lat-label">LAN / internal services</div>
+      <div class="lat-track"><div class="lat-fill" style="width:4%;background:var(--green)"></div></div>
+      <div class="lat-val" style="color:var(--green)">0.1ms</div>
+    </div>
+    <div class="lat-row">
+      <div class="lat-label">WiFi (ATAK phone, drone)</div>
+      <div class="lat-track"><div class="lat-fill" style="width:8%;background:var(--yellow)"></div></div>
+      <div class="lat-val" style="color:var(--yellow)">1–5ms</div>
+    </div>
+    <div class="lat-row">
+      <div class="lat-label">Cellular / 5G</div>
+      <div class="lat-track"><div class="lat-fill" style="width:18%;background:var(--orange)"></div></div>
+      <div class="lat-val" style="color:var(--orange)">10–30ms</div>
+    </div>
+    <div class="lat-row">
+      <div class="lat-label">Starlink LEO (QUIC)</div>
+      <div class="lat-track"><div class="lat-fill" style="width:25%;background:var(--orange)"></div></div>
+      <div class="lat-val" style="color:var(--orange)">20–40ms</div>
+    </div>
+    <div class="lat-row">
+      <div class="lat-label">SaaS API / Cloud HTTP</div>
+      <div class="lat-track"><div class="lat-fill" style="width:60%;background:var(--red)"></div></div>
+      <div class="lat-val" style="color:var(--red)">50–200ms</div>
+    </div>
+    <div class="lat-row">
+      <div class="lat-label">GEO Satellite</div>
+      <div class="lat-track"><div class="lat-fill" style="width:85%;background:var(--red)"></div></div>
+      <div class="lat-val" style="color:var(--red)">600ms</div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ══════════════════════════════════ FABRIC ══════════════════════════════════ -->
+<div id="view-fabric" class="view">
+  <div class="sec-head">
+    <div class="eyebrow">Message Fabric</div>
+    <h2>NATS — The <em>Universal Nervous System</em></h2>
+    <p>Subject-based addressing. No hostnames. No ports between services. The subject IS the address. Every device on Earth can publish and subscribe if it has a path to the hub.</p>
+  </div>
+
+  <!-- LIVE SUBJECT FEED -->
+  <div class="grid g2">
+    <div>
+      <h3 style="font-size:14px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:2px;margin-bottom:12px;">📡 Live Subject Feed</h3>
+      <div class="subject-feed" id="subject-feed">
+        <div class="sf-header">SUBJECT / PAYLOAD / BYTES</div>
+      </div>
+    </div>
+    <div>
+      <h3 style="font-size:14px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:2px;margin-bottom:12px;">📦 JetStream Streams</h3>
+      <div class="grid" style="gap:10px;">
+        <div class="card" style="padding:14px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <span style="font-size:13px;font-weight:700;">CONSTELLATION_TELEMETRY</span>
+            <span class="badge b-green">ACTIVE</span>
+          </div>
+          <div style="font-size:12px;color:var(--muted);margin-top:6px;font-family:'JetBrains Mono',monospace;">Replicas: 3 · Retention: 7d · MaxBytes: 10GB</div>
+          <div style="font-size:12px;color:var(--green);margin-top:4px;font-family:'JetBrains Mono',monospace;" id="tel-count">0 msgs stored</div>
+        </div>
+        <div class="card" style="padding:14px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <span style="font-size:13px;font-weight:700;">CONSTELLATION_COMMANDS</span>
+            <span class="badge b-yellow">ACTIVE</span>
+          </div>
+          <div style="font-size:12px;color:var(--muted);margin-top:6px;font-family:'JetBrains Mono',monospace;">Replicas: 3 · ExactlyOnce · WorkQueue</div>
+          <div style="font-size:12px;color:var(--yellow);margin-top:4px;font-family:'JetBrains Mono',monospace;" id="cmd-count">0 msgs stored</div>
+        </div>
+        <div class="card" style="padding:14px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <span style="font-size:13px;font-weight:700;">CONSTELLATION_EVENTS</span>
+            <span class="badge b-blue">ACTIVE</span>
+          </div>
+          <div style="font-size:12px;color:var(--muted);margin-top:6px;font-family:'JetBrains Mono',monospace;">Replicas: 3 · Retention: 30d · ClickHouse sync</div>
+          <div style="font-size:12px;color:var(--blue);margin-top:4px;font-family:'JetBrains Mono',monospace;" id="evt-count">0 msgs stored</div>
+        </div>
+        <div class="card" style="padding:14px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <span style="font-size:13px;font-weight:700;">VOICE_SESSIONS</span>
+            <span class="badge b-purple">ACTIVE</span>
+          </div>
+          <div style="font-size:12px;color:var(--muted);margin-top:6px;font-family:'JetBrains Mono',monospace;">LiveKit ↔ NATS bridge · STT/TTS · Cartesia</div>
+          <div style="font-size:12px;color:var(--purple);margin-top:4px;font-family:'JetBrains Mono',monospace;">Utterances: permanent in ClickHouse</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- SUBJECT SCHEMA -->
+  <div class="sec-head">
+    <div class="eyebrow">Subject Hierarchy</div>
+    <h2>The Universal <em>Address Space</em></h2>
+  </div>
+
+  <div class="mono-block"># TELEMETRY — sensor data in
+tel.{node}.{sensor}.{metric}
+  tel.zeus.bio.heartrate          → 78 bpm (Apple Watch)
+  tel.zeus.bio.spo2               → 99%
+  tel.zeus.position               → {lat:40.7580, lon:-73.9855, alt:120m}
+  tel.drone.alpha.gps             → {lat, lon, alt, speed, heading}
+  tel.drone.alpha.battery         → 84%
+  tel.car.tesla.engine.rpm        → 0 (parked)
+  tel.barn.soil.moisture          → 42%
+  tel.greenhouse.temp             → 74°F
+  tel.mta.subway.1.train001       → {lat, lon, station, next_stop, delay}
+  tel.mta.subway.A.train042       → {lat, lon, station, next_stop}
+  tel.helo.n123ab.adsb            → {lat, lon, alt, speed, squawk}
+  tel.sat.link.starlink           → {rssi, latency, jitter}
+
+# COMMANDS — bidirectional control
+cmd.{target}.{subsystem}.{action}
+  cmd.drone.alpha.mission.start   → {waypoints:[...]}
+  cmd.drone.alpha.rtl             → return to launch
+  cmd.drone.alpha.camera.record   → start recording
+  cmd.go2.patrol.start            → perimeter patrol
+  cmd.greenhouse.vent.open
+  cmd.legacy.task.execute         → AI executes task
+
+# EVENTS — state changes / alerts
+evt.{domain}.{entity}.{type}
+  evt.geofence.zone1.breach       → {entity: zeus, lat, lon}
+  evt.threat.drone.detected       → {lat, lon, confidence: 0.94}
+  evt.tak.zeus.arrived            → zone: homestead
+  evt.mta.delay.A.train           → {station: 14th, delay: 8min}
+  evt.drone.alpha.mission.complete
+  evt.zeus.bio.alert.heartrate    → {val: 155, threshold: 150}
+
+# AGENTS — AI routing
+agents.legacy.prompt              → direct command to Legacy
+agents.legacy.task.create
+agents.spartan.health.check       → health agent
+agents.empire.revenue.report      → business agent
+
+# VOICE — realtime audio
+voice.{session}.transcript.final → "patrol the north perimeter"
+voice.{session}.intent            → {action: patrol, target: north}
+voice.{session}.audio.out         → TTS response stream
+
+# SAAS — external APIs (never called directly)
+saas.ghl.contact.create.request
+saas.stripe.charge.request
+saas.skool.member.joined          → (webhook inbound, normalized)
+saas.notion.page.create.request</div>
+
+  <!-- TRANSPORT MAP -->
+  <hr class="divider">
+  <div class="sec-head">
+    <div class="eyebrow">Transport Layer</div>
+    <h2>Any Transport. <em>Same Subjects.</em></h2>
+  </div>
+  <table class="proto-table">
+    <thead><tr><th>Environment</th><th>Transport</th><th>Protocol</th><th>Latency</th><th>Offline?</th></tr></thead>
+    <tbody>
+      <tr><td>LAN / Local</td><td>TCP</td><td>NATS native</td><td><span class="badge b-green">0.1ms</span></td><td><span class="badge b-green">Leaf node</span></td></tr>
+      <tr><td>Browser / Mobile app</td><td>WebSocket</td><td>NATS over WS</td><td><span class="badge b-green">1–5ms</span></td><td><span class="badge b-yellow">Offline cache</span></td></tr>
+      <tr><td>Drone / Robot (field)</td><td>WiFi / 5G</td><td>NATS leaf</td><td><span class="badge b-yellow">5–20ms</span></td><td><span class="badge b-green">Embedded NATS</span></td></tr>
+      <tr><td>Satellite (Starlink)</td><td>QUIC</td><td>NATS 2.10 QUIC</td><td><span class="badge b-orange">20–40ms</span></td><td><span class="badge b-green">JetStream buffer</span></td></tr>
+      <tr><td>RF / Mesh radio</td><td>QUIC / serial</td><td>NATS bridge</td><td><span class="badge b-orange">30–80ms</span></td><td><span class="badge b-green">Local embedded</span></td></tr>
+      <tr><td>SaaS APIs</td><td>HTTP/2</td><td>Wombat → NATS</td><td><span class="badge b-red">50–200ms</span></td><td><span class="badge b-yellow">JetStream queue</span></td></tr>
+    </tbody>
+  </table>
+
+</div>
+
+<!-- ══════════════════════════════════ SCENARIOS ══════════════════════════════════ -->
+<div id="view-scenarios" class="view">
+  <div class="sec-head">
+    <div class="eyebrow">Real-World Applications</div>
+    <h2>What This Looks Like <em>In Operation</em></h2>
+    <p>Every scenario below is technically possible today with your existing stack. These are integrations, not inventions.</p>
+  </div>
+
+  <!-- SCENARIO 1: AI GUARDIAN -->
+  <div class="scenario">
+    <span class="scenario-badge" style="color:var(--purple); border-color:var(--purple);">🛡 AI GUARDIAN</span>
+    <h3>Legacy Watches You — Anywhere on Earth</h3>
+    <p>You're hiking in the backcountry. Legacy has continuous situational awareness of your position, biometrics, weather, and terrain. It makes autonomous decisions — dispatches a drone, sends an alert, escalates to emergency services — without you doing anything.</p>
+    <div class="scenario-flow">
+      <div class="sf-step">
+        <div class="sf-icon">⌚</div>
+        <div class="sf-label">Apple Watch</div>
+        <div class="sf-sub">tel.zeus.bio.heartrate<br>tel.zeus.bio.spo2</div>
+      </div>
+      <div class="sf-step">
+        <div class="sf-icon">📱</div>
+        <div class="sf-label">ATAK-CIV</div>
+        <div class="sf-sub">CoT position → OTS<br>→ tel.zeus.position</div>
+      </div>
+      <div class="sf-step">
+        <div class="sf-icon">🛰</div>
+        <div class="sf-label">Starlink QUIC</div>
+        <div class="sf-sub">Backcountry link<br>20–40ms latency</div>
+      </div>
+      <div class="sf-step">
+        <div class="sf-icon">🧠</div>
+        <div class="sf-label">Legacy (NATS)</div>
+        <div class="sf-sub">Subscribes all subjects<br>Evaluates in 0.1ms</div>
+      </div>
+      <div class="sf-step">
+        <div class="sf-icon">🚁</div>
+        <div class="sf-label">Drone Dispatch</div>
+        <div class="sf-sub">cmd.drone.alpha.mission<br>Geofence → launch</div>
+      </div>
+      <div class="sf-step">
+        <div class="sf-icon">🗺</div>
+        <div class="sf-label">WorldWideView</div>
+        <div class="sf-sub">Zeus + drone live<br>on CesiumJS globe</div>
+      </div>
+    </div>
+    <div style="margin-top:16px;padding:14px;background:rgba(168,85,247,.07);border:1px solid rgba(168,85,247,.2);border-radius:10px;">
+      <div style="font-size:12px;font-weight:700;color:var(--purple);margin-bottom:8px;">⚡ TRIGGER RULES (Legacy evaluates at 0.1ms)</div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--muted);line-height:2;">
+        HR &gt; 150bpm for 5min AND no movement → wellness check alert<br>
+        Position unchanged for 20min in danger zone → dispatch drone<br>
+        SpO2 &lt; 90% → emergency services + drone with medical kit<br>
+        Geofence breach: enemy territory → alert + record<br>
+        Link lost &gt; 2min → last known position logged, recovery protocol
+      </div>
+    </div>
+  </div>
+
+  <!-- SCENARIO 2: DRONE BASE -->
+  <div class="scenario const">
+    <span class="scenario-badge" style="color:var(--const); border-color:var(--const);">🛸 AUTONOMOUS DRONE OPS</span>
+    <h3>Geofence Triggers → Drone Launch from Base</h3>
+    <p>Geofences are defined in NATS KV. Any entity — person, vehicle, unknown drone — crossing a boundary triggers an automated response. Drones launch, patrol, record, and return autonomously. All video streams live to your cockpit.</p>
+    <div class="scenario-flow">
+      <div class="sf-step">
+        <div class="sf-icon">📍</div>
+        <div class="sf-label">Geofence KV</div>
+        <div class="sf-sub">omd.geofence.zone1<br>= {polygon, trigger}</div>
+      </div>
+      <div class="sf-step">
+        <div class="sf-icon">🚗</div>
+        <div class="sf-label">Entity Crosses</div>
+        <div class="sf-sub">evt.geofence.zone1<br>.breach → Legacy</div>
+      </div>
+      <div class="sf-step">
+        <div class="sf-icon">🧠</div>
+        <div class="sf-label">Legacy Decides</div>
+        <div class="sf-sub">friend/foe eval<br>dispatch decision</div>
+      </div>
+      <div class="sf-step">
+        <div class="sf-icon">🛸</div>
+        <div class="sf-label">Drone Launches</div>
+        <div class="sf-sub">MAVLink via bridge<br>Constellation cmd</div>
+      </div>
+      <div class="sf-step">
+        <div class="sf-icon">📹</div>
+        <div class="sf-label">Video Live</div>
+        <div class="sf-sub">MediaMTX WebRTC<br>→ cockpit stream</div>
+      </div>
+      <div class="sf-step">
+        <div class="sf-icon">🎯</div>
+        <div class="sf-label">ATAK Overlay</div>
+        <div class="sf-sub">Drone on your TAK map<br>CoT track → OTS</div>
+      </div>
+    </div>
+    <div style="margin-top:16px;padding:14px;background:rgba(245,158,11,.07);border:1px solid rgba(245,158,11,.2);border-radius:10px;">
+      <div style="font-size:12px;font-weight:700;color:var(--const);margin-bottom:8px;">🛸 WHAT APEX-SENTINEL ADDS</div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--muted);line-height:2;">
+        RF sensor detects rogue drone signal<br>
+        apex-sentinel: classify → confidence 0.94 → hostile<br>
+        CoT hostile track → OTS → all ATAK devices go RED<br>
+        evt.threat.drone.detected → Legacy evaluates trajectory<br>
+        Intercept drone dispatched → intercept vector calculated<br>
+        All logged to ClickHouse: permanent audit trail
+      </div>
+    </div>
+  </div>
+
+  <!-- SCENARIO 3: NYC MTA -->
+  <div class="scenario mta">
+    <span class="scenario-badge" style="color:var(--mta); border-color:var(--mta);">🚇 NEW YORK CITY TRANSIT</span>
+    <h3>Every Train Live — Legacy Knows Before the MTA App</h3>
+    <p>MTA GTFS-Realtime API (free, public) feeds into NATS via Wombat connector every 15s. Every subway train and bus registered as a Constellation entity. Live on MapLibre map. Legacy answers transit questions in under 100ms — no API call, reads from KV directly.</p>
+    <div class="scenario-flow">
+      <div class="sf-step">
+        <div class="sf-icon">🚇</div>
+        <div class="sf-label">MTA GTFS-RT</div>
+        <div class="sf-sub">Free public API<br>15s push cycle</div>
+      </div>
+      <div class="sf-step">
+        <div class="sf-icon">🔄</div>
+        <div class="sf-label">Wombat Bridge</div>
+        <div class="sf-sub">YAML connector<br>zero code needed</div>
+      </div>
+      <div class="sf-step">
+        <div class="sf-icon">⚡</div>
+        <div class="sf-label">NATS Subject</div>
+        <div class="sf-sub">tel.mta.subway.1<br>.{train_id}.position</div>
+      </div>
+      <div class="sf-step">
+        <div class="sf-icon">🗺</div>
+        <div class="sf-label">MapLibre Live</div>
+        <div class="sf-sub">Every train moves<br>SSE DOM patches</div>
+      </div>
+      <div class="sf-step">
+        <div class="sf-icon">🧠</div>
+        <div class="sf-label">Legacy Queries</div>
+        <div class="sf-sub">NATS KV lookup<br>&lt;100ms answer</div>
+      </div>
+      <div class="sf-step">
+        <div class="sf-icon">📱</div>
+        <div class="sf-label">ATAK Overlay</div>
+        <div class="sf-sub">Trains as CoT tracks<br>on your TAK map</div>
+      </div>
+    </div>
+    <div style="margin-top:16px;padding:14px;background:rgba(59,130,246,.07);border:1px solid rgba(59,130,246,.2);border-radius:10px;">
+      <div style="font-size:12px;font-weight:700;color:var(--mta);margin-bottom:8px;">🗣 VOICE QUERIES (via LiveKit → NATS)</div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--muted);line-height:2;">
+        "Next uptown 1 train from 72nd St?" → reads KV → &lt;100ms<br>
+        "Any A train delays right now?" → subscribes evt.mta.delay.A.&gt;<br>
+        "Route me from Harlem to Wall St avoiding delays" → Legacy plans<br>
+        "Show all subway lines on the map" → WorldWideView filter<br>
+        "Alert me when the next 4 train is 2 stops away" → NATS watch
+      </div>
+    </div>
+  </div>
+
+  <!-- SCENARIO 4: BIOMETRICS -->
+  <div class="scenario bio">
+    <span class="scenario-badge" style="color:var(--pink); border-color:var(--pink);">❤️ HUMAN BIOMETRICS</span>
+    <h3>Your Body — A Node on the Fabric</h3>
+    <p>Apple Watch BLE → edge Pi bridge → NATS. Heart rate, SpO2, steps, sleep stages, HRV — all streaming as subjects. Legacy builds a continuous health model. Spartan agent monitors trends. Anomalies trigger interventions before you feel them.</p>
+    <div class="scenario-flow">
+      <div class="sf-step">
+        <div class="sf-icon">⌚</div>
+        <div class="sf-label">Apple Watch</div>
+        <div class="sf-sub">BLE / HealthKit<br>continuous stream</div>
+      </div>
+      <div class="sf-step">
+        <div class="sf-icon">🖥</div>
+        <div class="sf-label">Mac Bridge</div>
+        <div class="sf-sub">HealthKit API<br>→ omd bridge</div>
+      </div>
+      <div class="sf-step">
+        <div class="sf-icon">⚡</div>
+        <div class="sf-label">NATS Subjects</div>
+        <div class="sf-sub">tel.zeus.bio.*<br>all vitals live</div>
+      </div>
+      <div class="sf-step">
+        <div class="sf-icon">🏋</div>
+        <div class="sf-label">Spartan Agent</div>
+        <div class="sf-sub">HP pillar monitor<br>trend analysis</div>
+      </div>
+      <div class="sf-step">
+        <div class="sf-icon">🧠</div>
+        <div class="sf-label">Legacy AI</div>
+        <div class="sf-sub">Context-aware<br>correlates all data</div>
+      </div>
+      <div class="sf-step">
+        <div class="sf-icon">📊</div>
+        <div class="sf-label">ClickHouse</div>
+        <div class="sf-sub">Every reading permanent<br>SQL queryable forever</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ══════════════════════════════════ DEVICES ══════════════════════════════════ -->
+<div id="view-devices" class="view">
+  <div class="sec-head">
+    <div class="eyebrow">Universal Node Architecture</div>
+    <h2>Every Device. <em>One Fabric.</em></h2>
+    <p>Any machine with a CPU and a network path becomes a node. The bridge pattern handles every foreign protocol. The subject is the only address.</p>
+  </div>
+
+  <div class="node-grid">
+    <div class="node-card"><div class="node-dot online"></div><div class="node-info"><div class="ni-name">Mac M2 Max (Hub)</div><div class="ni-sub">TCP · native · 0.001ms</div></div></div>
+    <div class="node-card"><div class="node-dot online"></div><div class="node-info"><div class="ni-name">omos-cloud VPS</div><div class="ni-sub">TCP · Tailscale · 5ms</div></div></div>
+    <div class="node-card"><div class="node-dot online"></div><div class="node-info"><div class="ni-name">iPhone (ATAK-CIV)</div><div class="ni-sub">WS · CoT → NATS · 2ms</div></div></div>
+    <div class="node-card"><div class="node-dot online"></div><div class="node-info"><div class="ni-name">Android (ATAK)</div><div class="ni-sub">WS · CoT → NATS · 2ms</div></div></div>
+    <div class="node-card"><div class="node-dot air"></div><div class="node-info"><div class="ni-name">DJI Drone (MAVLink)</div><div class="ni-sub">WiFi · MAVLink bridge · 5ms</div></div></div>
+    <div class="node-card"><div class="node-dot air"></div><div class="node-info"><div class="ni-name">Unitree Go2 Robot</div><div class="ni-sub">WiFi · ROS2 → NATS · 3ms</div></div></div>
+    <div class="node-card"><div class="node-dot edge"></div><div class="node-info"><div class="ni-name">Barn Pi (Edge)</div><div class="ni-sub">LAN · omd embed · 0.1ms</div></div></div>
+    <div class="node-card"><div class="node-dot edge"></div><div class="node-info"><div class="ni-name">Greenhouse Pi</div><div class="ni-sub">WiFi · omd embed · 1ms</div></div></div>
+    <div class="node-card"><div class="node-dot bio"></div><div class="node-info"><div class="ni-name">Apple Watch</div><div class="ni-sub">BLE → Mac bridge · 2ms</div></div></div>
+    <div class="node-card"><div class="node-dot relay"></div><div class="node-info"><div class="ni-name">Starlink Terminal</div><div class="ni-sub">QUIC · leaf node · 25ms</div></div></div>
+    <div class="node-card"><div class="node-dot air"></div><div class="node-info"><div class="ni-name">Helicopter (ADS-B)</div><div class="ni-sub">ADS-B → bridge · 30ms</div></div></div>
+    <div class="node-card"><div class="node-dot relay"></div><div class="node-info"><div class="ni-name">Tesla (CAN bus)</div><div class="ni-sub">Pi bridge · CAN · 15ms</div></div></div>
+    <div class="node-card"><div class="node-dot online"></div><div class="node-info"><div class="ni-name">MTA Train Fleet</div><div class="ni-sub">GTFS-RT → Wombat · 15s</div></div></div>
+    <div class="node-card"><div class="node-dot online"></div><div class="node-info"><div class="ni-name">NYC Bus Fleet</div><div class="ni-sub">GTFS-RT → NATS · 15s</div></div></div>
+    <div class="node-card"><div class="node-dot online"></div><div class="node-info"><div class="ni-name">Home Assistant</div><div class="ni-sub">185+ entities → NATS · 1ms</div></div></div>
+    <div class="node-card"><div class="node-dot online"></div><div class="node-info"><div class="ni-name">Legacy AI (Hermes)</div><div class="ni-sub">In-process · 0.001ms</div></div></div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- DEVICE PROTOCOL TABLE -->
+  <div class="sec-head">
+    <div class="eyebrow">Bridge Architecture</div>
+    <h2>Protocol → <em>NATS Translation</em></h2>
+  </div>
+
+  <table class="proto-table">
+    <thead>
+      <tr><th>Device Class</th><th>Native Protocol</th><th>Bridge</th><th>Subject Pattern</th><th>Latency</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>💻 Computer / Server</td><td>Native TCP</td><td>None — direct NATS</td><td><code>tel.{host}.*</code></td><td><span class="badge b-core">0.001ms</span></td></tr>
+      <tr><td>📱 iPhone / Android</td><td>WebSocket / HTTP</td><td>dart_nats / nats.ws</td><td><code>tel.{user}.mobile.*</code></td><td><span class="badge b-green">1–5ms</span></td></tr>
+      <tr><td>🛸 Drone (MAVLink)</td><td>MAVLink v2</td><td>Go MAVLink bridge</td><td><code>tel.drone.{id}.*</code></td><td><span class="badge b-green">2–10ms</span></td></tr>
+      <tr><td>🤖 Robot (ROS2)</td><td>DDS / ROS2</td><td>ros2-nats-bridge</td><td><code>tel.robot.{id}.*</code></td><td><span class="badge b-green">0.5–2ms</span></td></tr>
+      <tr><td>🌡 IoT Sensor</td><td>MQTT / CoAP / BLE</td><td>Mosquitto → Wombat</td><td><code>tel.sensor.{loc}.*</code></td><td><span class="badge b-green">1–5ms</span></td></tr>
+      <tr><td>🚗 Car (CAN Bus)</td><td>CAN / OBD-II</td><td>Pi CAN bridge</td><td><code>tel.car.{id}.*</code></td><td><span class="badge b-yellow">10–30ms</span></td></tr>
+      <tr><td>⌚ Human Biometrics</td><td>BLE / ANT+</td><td>HealthKit → omd</td><td><code>tel.zeus.bio.*</code></td><td><span class="badge b-yellow">2–20ms</span></td></tr>
+      <tr><td>🚁 Helicopter / Plane</td><td>ADS-B / ARINC 429</td><td>ADS-B receiver → Go</td><td><code>tel.air.{icao}.*</code></td><td><span class="badge b-yellow">20–50ms</span></td></tr>
+      <tr><td>🛰 Satellite (Starlink)</td><td>IP over Ku/Ka-band</td><td>NATS over QUIC</td><td><code>tel.sat.link.*</code></td><td><span class="badge b-orange">20–40ms</span></td></tr>
+      <tr><td>🚇 Transit (MTA)</td><td>GTFS-Realtime / HTTP</td><td>Wombat connector</td><td><code>tel.mta.{line}.*</code></td><td><span class="badge b-orange">15s cycle</span></td></tr>
+      <tr><td>🏠 Smart Home</td><td>Zigbee / Z-Wave / WiFi</td><td>Home Assistant → NATS</td><td><code>tel.home.{room}.*</code></td><td><span class="badge b-green">1ms</span></td></tr>
+      <tr><td>🌐 SaaS APIs</td><td>HTTPS / REST</td><td>Wombat HTTP client</td><td><code>saas.{provider}.*</code></td><td><span class="badge b-red">50–200ms</span></td></tr>
+    </tbody>
+  </table>
+
+  <!-- OMD BINARY -->
+  <hr class="divider">
+  <div class="sec-head">
+    <div class="eyebrow">The Missing Piece</div>
+    <h2>The <em>omd</em> Binary — One Artifact, Every Device</h2>
+    <p>One Go binary cross-compiled for every target. Deploy it, configure the mode, it connects to the hub. No runtime. No deps. 5MB static.</p>
+  </div>
+  <div class="mono-block"># Cross-compile for every target
+GOOS=linux  GOARCH=arm64  go build -o omd-linux-arm64  → Pi, drone, robot
+GOOS=linux  GOARCH=amd64  go build -o omd-linux-amd64  → VPS, workstation
+GOOS=darwin GOARCH=arm64  go build -o omd-mac-arm64     → your Mac
+GOOS=windows GOARCH=amd64 go build -o omd-windows.exe   → Windows nodes
+
+# Deploy and run
+omd --mode=edge    # embedded NATS + local sensor bridge
+omd --mode=bridge  # protocol translator (MAVLink/CAN/BLE → NATS)
+omd --mode=leaf    # leaf node connecting to hub, offline resilient
+omd --mode=client  # lightweight subscriber/publisher only
+
+# The binary discovers the hub via NATS leafnode remote
+# The hub is just a nats-server config — no coordinator needed
+# $SRV.PING discovers every running service automatically</div>
+
+</div>
+
+<!-- ══════════════════════════════════ TAK ══════════════════════════════════ -->
+<div id="view-tak" class="view">
+  <div class="sec-head">
+    <div class="eyebrow">TAK Ecosystem + Constellation C4ISR</div>
+    <h2>Military-Grade <em>Situational Awareness</em> — Civilian Stack</h2>
+    <p>TAK (Team Awareness Kit) was built by DARPA. It runs on the phones of US Special Forces. You're running OTS v1.7.12 already. Combined with Constellation Overwatch, this is a sovereign C4ISR system that rivals what nation-states operate.</p>
+  </div>
+
+  <div class="grid g2">
+    <div>
+      <div class="grid" style="gap:10px;">
+        <div class="card accent-tak">
+          <div class="card-icon">📱</div>
+          <h3>ATAK-CIV (Android)</h3>
+          <p>Full TAK client on Android. Blue force tracking, map overlays, CoT messaging, data packages. Your phone becomes a military SA terminal. Connects to OTS over Tailscale from anywhere.</p>
+          <span class="tag" style="color:var(--tak)">Field Device</span>
+        </div>
+        <div class="card accent-tak">
+          <div class="card-icon">🍎</div>
+          <h3>iTAK (iPhone)</h3>
+          <p>iPhone TAK client. Same capabilities as ATAK-CIV. Zeus's primary field device when hiking, driving, or operating remotely. Sends CoT position every 2 seconds.</p>
+          <span class="tag" style="color:var(--tak)">iOS Field Device</span>
+        </div>
+        <div class="card accent-tak">
+          <div class="card-icon">🖥</div>
+          <h3>WinTAK / WebTAK</h3>
+          <p>Desktop command post. Full map, all tracks, video feeds, chat. The command center view — see everything your field devices see, plus drone video, sensor overlays, weather.</p>
+          <span class="tag" style="color:var(--tak)">Command Post</span>
+        </div>
+        <div class="card accent-tak">
+          <div class="card-icon">🗄</div>
+          <h3>OTS v1.7.12 (Your Hub)</h3>
+          <p>Already running. SSL mode 1. Receives CoT from all ATAK devices. Distributes to all subscribers. Bridge to NATS makes every TAK track a NATS subject.</p>
+          <span class="tag" style="color:var(--green)">RUNNING</span>
+        </div>
+      </div>
+    </div>
+    <div>
+      <div class="card" style="height:100%;">
+        <h3 style="margin-bottom:16px;">CoT → NATS Bridge (The Key Integration)</h3>
+        <div class="mono-block" style="font-size:11px;">
+# CoT XML from ATAK device
+&lt;event type="a-f-G-U-C" 
+  uid="ZEUS-IPHONE" 
+  lat="40.7128" lon="-74.0060"&gt;
+  &lt;detail&gt;
+    &lt;contact callsign="ZEUS"/&gt;
+    &lt;track speed="1.2" course="180"/&gt;
+  &lt;/detail&gt;
+&lt;/event&gt;
+
+# OTS receives it
+# CoT bridge translates → publishes
+
+nc.Publish(
+  "tel.tak.zeus.position",
+  {lat: 40.7128, lon: -74.006,
+   speed: 1.2, course: 180,
+   callsign: "ZEUS",
+   ts: now()}
+)
+
+# Legacy receives in 0.1ms
+# All subscribers receive simultaneously:
+#   WorldWideView → renders on 3D globe
+#   Constellation → entity state updated
+#   Spartan → checks position vs health data
+#   Guardian → geofence evaluation
+        </div>
+        <div style="margin-top:12px;padding:10px;background:rgba(34,197,94,.07);border:1px solid rgba(34,197,94,.2);border-radius:8px;">
+          <div style="font-size:11px;font-weight:700;color:var(--tak);margin-bottom:4px;">BUILD STATUS</div>
+          <div style="font-size:12px;color:var(--muted);">CoT → NATS bridge: <span style="color:var(--yellow);">2–3 days, Go</span><br>apex-sentinel already generates CoT → needs NATS pub added</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- CONSTELLATION INTEGRATION -->
+  <div class="sec-head">
+    <div class="eyebrow">Constellation Overwatch</div>
+    <h2>The Physical Entity <em>Data Plane</em></h2>
+    <p>Vendor-agnostic C4ISR. Every drone, robot, sensor registered with an entity_id. Four NATS streams: ENTITIES, TELEMETRY, COMMANDS, EVENTS. MapLibre map. MediaMTX video. Already built in Go.</p>
+  </div>
+
+  <div class="grid g3">
+    <div class="card accent-const">
+      <div class="card-icon">🛸</div>
+      <h3>Drone Fleet</h3>
+      <p>Register each drone as entity_type: aircraft_multirotor. Telemetry streams GPS, battery, heading. Commands deliver MAVLink missions. Video via MediaMTX WebRTC.</p>
+      <span class="tag" style="color:var(--const)">ENTITIES stream</span>
+    </div>
+    <div class="card accent-const">
+      <div class="card-icon">🤖</div>
+      <h3>Unitree Go2 / G1</h3>
+      <p>Ground robot entity. ROS2 → NATS bridge. Patrol commands, position telemetry, camera feed. "Patrol the perimeter" → voice → NATS → robot moves.</p>
+      <span class="tag" style="color:var(--const)">ground_robot</span>
+    </div>
+    <div class="card accent-const">
+      <div class="card-icon">📡</div>
+      <h3>Sensor Network</h3>
+      <p>Barn Pi, greenhouse Pi, soil sensors, motion detectors — all registered entities. Telemetry streams to CONSTELLATION_TELEMETRY. KV holds live state.</p>
+      <span class="tag" style="color:var(--const)">edge_sensor</span>
+    </div>
+    <div class="card accent-const">
+      <div class="card-icon">📹</div>
+      <h3>Video Intelligence</h3>
+      <p>MediaMTX handles WebRTC/HLS/RTMP from all cameras. Drone feeds, fixed cams, body cam. All streams accessible from WorldWideView cockpit. apex-sentinel watches for threats.</p>
+      <span class="tag" style="color:var(--const)">MediaMTX</span>
+    </div>
+    <div class="card accent-const">
+      <div class="card-icon">🗺</div>
+      <h3>MapLibre Live Map</h3>
+      <p>Every Constellation entity on a live map. SSE pushes DOM patches via Datastar — no page reload, no polling. Position updates render in real-time as telemetry arrives.</p>
+      <span class="tag" style="color:var(--const)">Live COP</span>
+    </div>
+    <div class="card accent-const">
+      <div class="card-icon">📊</div>
+      <h3>Prometheus + Grafana</h3>
+      <p>worldmonitor has 86 Grafana panels. NATS metrics, entity health, telemetry rates, command latency — all dashboarded. Every Constellation worker exports Prometheus metrics.</p>
+      <span class="tag" style="color:var(--const)">86 panels</span>
+    </div>
+  </div>
+
+  <!-- APEX SENTINEL -->
+  <hr class="divider">
+  <div class="sec-head">
+    <div class="eyebrow">Threat Detection</div>
+    <h2>apex-sentinel — <em>Drone Detection + AI</em></h2>
+  </div>
+  <div class="scenario">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
+      <div>
+        <div style="font-size:13px;font-weight:700;color:var(--red);margin-bottom:10px;">🚨 DETECTION PIPELINE</div>
+        <div class="mono-block" style="font-size:11px;">RF Sensor detects signal
+  → classify: drone, freq, manufacturer
+  → confidence: 0.94 → HOSTILE
+
+apex-sentinel generates CoT:
+  type="a-h-G" (hostile ground)
+  uid="threat-drone-001"
+  lat=40.71, lon=-74.00
+
+→ publishes to OTS
+→ ALL ATAK devices: RED dot appears
+→ NATS: evt.threat.drone.detected
+
+Legacy receives in 0.1ms:
+  → evaluate trajectory
+  → estimate intercept point
+  → cmd.drone.interceptor.launch
+  → logs to ClickHouse: permanent
+
+Result: intercept drone airborne
+        in under 8 seconds</div>
+      </div>
+      <div>
+        <div style="font-size:13px;font-weight:700;color:var(--green);margin-bottom:10px;">📊 STACK STATUS</div>
+        <div class="grid" style="gap:8px;">
+          <div style="padding:10px;background:rgba(0,0,0,.3);border:1px solid var(--border);border-radius:8px;">
+            <div style="font-size:12px;font-weight:700;">apex-sentinel</div>
+            <div style="font-size:11px;color:var(--muted);margin-top:3px;">397 tests · 92% coverage</div>
+            <span class="badge b-green" style="margin-top:6px;display:inline-block;">RUNNING</span>
+          </div>
+          <div style="padding:10px;background:rgba(0,0,0,.3);border:1px solid var(--border);border-radius:8px;">
+            <div style="font-size:12px;font-weight:700;">OTS v1.7.12</div>
+            <div style="font-size:11px;color:var(--muted);margin-top:3px;">SSL mode 1 · ~/ots/ live</div>
+            <span class="badge b-green" style="margin-top:6px;display:inline-block;">RUNNING</span>
+          </div>
+          <div style="padding:10px;background:rgba(0,0,0,.3);border:1px solid var(--border);border-radius:8px;">
+            <div style="font-size:12px;font-weight:700;">worldwideview</div>
+            <div style="font-size:11px;color:var(--muted);margin-top:3px;">CesiumJS 3D globe</div>
+            <span class="badge b-yellow" style="margin-top:6px;display:inline-block;">INTEGRATE</span>
+          </div>
+          <div style="padding:10px;background:rgba(0,0,0,.3);border:1px solid var(--border);border-radius:8px;">
+            <div style="font-size:12px;font-weight:700;">CoT → NATS bridge</div>
+            <div style="font-size:11px;color:var(--muted);margin-top:3px;">Key missing link</div>
+            <span class="badge b-orange" style="margin-top:6px;display:inline-block;">BUILD: 2-3d</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ══════════════════════════════════ MTA ══════════════════════════════════ -->
+<div id="view-mta" class="view">
+  <div class="sec-head">
+    <div class="eyebrow">New York City — Real-Time Intelligence</div>
+    <h2>The City as a <em>Sensor Network</em></h2>
+    <p>NYC generates open real-time data across transit, emergency, weather, and infrastructure. One Mind ingests all of it through NATS, rendering a live operating picture of New York City.</p>
+  </div>
+
+  <!-- NYC MAP SIMULATION -->
+  <canvas id="nyc-canvas" style="width:100%;height:400px;display:block;border-radius:16px;border:1px solid var(--border);background:#060f1e;"></canvas>
+  <p style="text-align:center;font-size:11px;color:var(--muted2);margin-top:8px;font-family:'JetBrains Mono',monospace;">
+    Simulated NYC transit feed — each moving dot is a subway train / bus position update via GTFS-RT → NATS
+  </p>
+
+  <hr class="divider">
+
+  <div class="grid g2" style="margin-top:24px;">
+    <div>
+      <div class="sec-head">
+        <div class="eyebrow">Data Sources</div>
+        <h2>NYC <em>Open Data</em> → NATS</h2>
+      </div>
+      <table class="proto-table">
+        <thead><tr><th>Source</th><th>Data</th><th>Update Rate</th><th>Cost</th></tr></thead>
+        <tbody>
+          <tr><td>MTA GTFS-RT</td><td>All subway + bus positions, delays</td><td><span class="badge b-green">15s</span></td><td><span class="badge b-green">FREE</span></td></tr>
+          <tr><td>MTA Alerts API</td><td>Service advisories, incidents</td><td><span class="badge b-yellow">Push</span></td><td><span class="badge b-green">FREE</span></td></tr>
+          <tr><td>NOAA Weather</td><td>Precip, wind, temp, alerts</td><td><span class="badge b-yellow">1min</span></td><td><span class="badge b-green">FREE</span></td></tr>
+          <tr><td>NYC 311</td><td>Incidents, service requests</td><td><span class="badge b-orange">5min</span></td><td><span class="badge b-green">FREE</span></td></tr>
+          <tr><td>FAA SWIM</td><td>Flight tracks over NYC</td><td><span class="badge b-green">1s</span></td><td><span class="badge b-green">FREE</span></td></tr>
+          <tr><td>NYFD CAD</td><td>Emergency dispatches</td><td><span class="badge b-yellow">Push</span></td><td><span class="badge b-green">FREE</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div>
+      <div class="sec-head">
+        <div class="eyebrow">Voice Queries</div>
+        <h2>Legacy Knows <em>Everything</em></h2>
+      </div>
+      <div class="mono-block">
+# All answered from NATS KV — no API call
+# Response time: &lt;100ms
+
+"Next uptown 1 train from 72nd?"
+→ KV: tel.mta.subway.1.*
+→ filter by direction=N, station=72st
+→ answer: "3 minutes, 4 stops away"
+
+"Any delays on the A right now?"
+→ subscribe: evt.mta.delay.A.&gt;
+→ answer: "14th St, 8min delay"
+
+"Show helicopters over Manhattan"
+→ tel.air.*.position + NYC bounds
+→ WorldWideView filter applied
+
+"Alert me when the 4 is 2 stops away"
+→ NATS watch on tel.mta.subway.4.*
+→ push notification when condition met
+
+"Best route Harlem → Wall St, avoid delays"
+→ Legacy plans across all live data
+→ considers NYFD incidents, weather
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ══════════════════════════════════ VS ══════════════════════════════════ -->
+<div id="view-vs" class="view">
+  <div class="sec-head">
+    <div class="eyebrow">Capability Assessment</div>
+    <h2>What You're <em>Actually Building</em></h2>
+    <p>Commercial equivalents cost tens of millions. This is open-source infrastructure on hardware you own, on a fabric you control. Zero vendor lock-in. Zero recurring licensing fees.</p>
+  </div>
+
+  <div class="metrics">
+    <div class="metric">
+      <div class="m-val" style="color:var(--green)">$0</div>
+      <div class="m-label">Licensing Cost</div>
+    </div>
+    <div class="metric">
+      <div class="m-val glow-core">0.1ms</div>
+      <div class="m-label">Internal Latency</div>
+    </div>
+    <div class="metric">
+      <div class="m-val" style="color:var(--yellow)">$50M+</div>
+      <div class="m-label">Commercial Equiv.</div>
+    </div>
+    <div class="metric">
+      <div class="m-val" style="color:var(--purple)">100%</div>
+      <div class="m-label">Data Sovereignty</div>
+    </div>
+    <div class="metric">
+      <div class="m-val" style="color:var(--tak)">14</div>
+      <div class="m-label">Device Classes</div>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <table class="comp-table">
+    <thead>
+      <tr>
+        <th>Capability</th>
+        <th>Commercial Equivalent</th>
+        <th>Cost</th>
+        <th>Your Stack</th>
+        <th>Cost</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Drone Fleet Management</strong></td>
+        <td>DJI FlightHub 2, Dedrone</td>
+        <td style="color:var(--red)">$50k/yr</td>
+        <td>Constellation + NATS + MAVLink bridge</td>
+        <td style="color:var(--green)"><strong>$0</strong></td>
+      </tr>
+      <tr>
+        <td><strong>Situational Awareness</strong></td>
+        <td>Palantir Foundry, Anduril Lattice</td>
+        <td style="color:var(--red)">$10M+/yr</td>
+        <td>TAK/OTS + WorldWideView + NATS</td>
+        <td style="color:var(--green)"><strong>$0</strong></td>
+      </tr>
+      <tr>
+        <td><strong>AI Guardian / Personal Safety</strong></td>
+        <td>Doesn't exist commercially</td>
+        <td style="color:var(--red)">N/A</td>
+        <td>Legacy AI + ATAK + biometrics + NATS</td>
+        <td style="color:var(--green)"><strong>$0</strong></td>
+      </tr>
+      <tr>
+        <td><strong>Live Transit Intelligence</strong></td>
+        <td>Transit App (30s delay, reactive)</td>
+        <td style="color:var(--red)">$5/mo</td>
+        <td>MTA GTFS-RT → NATS → Legacy (2s, proactive)</td>
+        <td style="color:var(--green)"><strong>$0</strong></td>
+      </tr>
+      <tr>
+        <td><strong>Drone Threat Detection</strong></td>
+        <td>Dedrone, D-Fend Solutions</td>
+        <td style="color:var(--red)">$200k+</td>
+        <td>apex-sentinel (397 tests, 92% cov)</td>
+        <td style="color:var(--green)"><strong>$0</strong></td>
+      </tr>
+      <tr>
+        <td><strong>Common Operating Picture</strong></td>
+        <td>Military C4ISR systems</td>
+        <td style="color:var(--red)">$100M+</td>
+        <td>WorldWideView + Constellation + TAK</td>
+        <td style="color:var(--green)"><strong>$0</strong></td>
+      </tr>
+      <tr>
+        <td><strong>Human Biometric Monitoring</strong></td>
+        <td>No civilian equivalent</td>
+        <td style="color:var(--red)">N/A</td>
+        <td>Apple Watch → NATS → Legacy + Spartan</td>
+        <td style="color:var(--green)"><strong>$0</strong></td>
+      </tr>
+      <tr>
+        <td><strong>Multi-Domain Message Fabric</strong></td>
+        <td>AWS IoT Core, Azure IoT Hub</td>
+        <td style="color:var(--red)">$0.08/msg</td>
+        <td>NATS JetStream (self-hosted, unlimited)</td>
+        <td style="color:var(--green)"><strong>$0</strong></td>
+      </tr>
+      <tr>
+        <td><strong>Video Intelligence / Streaming</strong></td>
+        <td>Axon AI, Verkada Enterprise</td>
+        <td style="color:var(--red)">$100k+/yr</td>
+        <td>MediaMTX + apex-sentinel + NATS</td>
+        <td style="color:var(--green)"><strong>$0</strong></td>
+      </tr>
+      <tr>
+        <td><strong>Satellite Connectivity</strong></td>
+        <td>Iridium Certus, Inmarsat</td>
+        <td style="color:var(--red)">$5k+/mo</td>
+        <td>Starlink ($120/mo) + NATS QUIC</td>
+        <td style="color:var(--green)"><strong>$120/mo</strong></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <hr class="divider">
+
+  <!-- WHAT'S MISSING -->
+  <div class="sec-head">
+    <div class="eyebrow">Execution Plan</div>
+    <h2>Three Integrations to <em>Complete the Vision</em></h2>
+  </div>
+
+  <div class="grid g3">
+    <div class="card" style="border-left:3px solid var(--green);">
+      <div class="card-icon">🔗</div>
+      <h3>1. CoT → NATS Bridge</h3>
+      <p>Translate OTS CoT XML to NATS subjects. Every ATAK device, every TAK track becomes a live NATS subject. Legacy sees all field operators in real-time.</p>
+      <div style="margin-top:12px;padding:8px;background:rgba(0,255,159,.07);border-radius:8px;">
+        <div style="font-size:11px;font-weight:700;color:var(--green);">EFFORT: 2–3 days, Go</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:3px;">Highest leverage. Unlocks entire TAK ecosystem.</div>
+      </div>
+    </div>
+    <div class="card" style="border-left:3px solid var(--yellow);">
+      <div class="card-icon">🚇</div>
+      <h3>2. MTA GTFS-RT → NATS</h3>
+      <p>Wombat YAML connector. Free MTA API key. Every subway train and bus as a Constellation entity, position updating every 15 seconds. Live on WorldWideView.</p>
+      <div style="margin-top:12px;padding:8px;background:rgba(255,215,0,.07);border-radius:8px;">
+        <div style="font-size:11px;font-weight:700;color:var(--yellow);">EFFORT: 4 hours, YAML config</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:3px;">Quickest win. Proves the bridge pattern end-to-end.</div>
+      </div>
+    </div>
+    <div class="card" style="border-left:3px solid var(--blue);">
+      <div class="card-icon">🛸</div>
+      <h3>3. Constellation ↔ TAK</h3>
+      <p>Bridge Constellation entity positions to CoT tracks in OTS. Every drone, robot, sensor appears on ATAK devices as a tracked entity. Full unified COP.</p>
+      <div style="margin-top:12px;padding:8px;background:rgba(59,130,246,.07);border-radius:8px;">
+        <div style="font-size:11px;font-weight:700;color:var(--blue);">EFFORT: 1–2 weeks, Go</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:3px;">Completes the loop. NATS → TAK bidirectional.</div>
+      </div>
+    </div>
+  </div>
+
+  <div style="margin-top:24px;padding:24px;background:linear-gradient(135deg,rgba(0,255,229,.05),rgba(168,85,247,.05));border:1px solid var(--border2);border-radius:16px;text-align:center;">
+    <div style="font-size:28px;font-weight:900;background:linear-gradient(90deg,var(--core),var(--purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:12px;">
+      You're not building a productivity system.
+    </div>
+    <div style="font-size:16px;color:var(--muted);max-width:700px;margin:0 auto;line-height:1.7;">
+      You're building a <strong style="color:var(--ink)">personal sovereign intelligence network</strong> that rivals what nation-states operate — at zero marginal cost, on hardware you own, on a fabric you control.
+    </div>
+    <div style="margin-top:16px;font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--core);">
+      HUMAN (Zeus) + AI (Legacy) = ONE MIND
+    </div>
+  </div>
+
+</div>
+
+</main>
+
+<footer>
+  <span>ONE MIND</span> · Sovereign Intelligence Network · Built on NATS · TAK · Constellation · Generated by Legacy AI
+</footer>
+
+<script>
+// ── VIEW NAVIGATION ────────────────────────────────────
+function showView(name) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('view-' + name).classList.add('active');
+  event.currentTarget.classList.add('active');
+  if (name === 'mta') initNYC();
+}
+
+// ── HERO CANVAS — NATS FABRIC SIMULATION ───────────────
+const HC = document.getElementById('hero-canvas');
+const hctx = HC ? HC.getContext('2d') : null;
+let heroNodes = [], heroMsgs = [], heroAnimId, msgCount = 0;
+const COLORS = {
+  core:   '#00ffe5', green: '#00ff9f', yellow: '#ffd700',
+  orange: '#ff8c00', red:   '#ff3366', purple: '#a855f7',
+  blue:   '#3b82f6', pink:  '#f472b6'
+};
+const SUBJECTS = [
+  {txt:'tel.zeus.position',         col:'green',  type:'tel'},
+  {txt:'tel.drone.alpha.gps',       col:'orange', type:'tel'},
+  {txt:'tel.mta.subway.1.train01',  col:'blue',   type:'tel'},
+  {txt:'cmd.drone.alpha.mission',   col:'yellow', type:'cmd'},
+  {txt:'evt.geofence.zone1.breach', col:'red',    type:'evt'},
+  {txt:'tel.zeus.bio.heartrate',    col:'pink',   type:'tel'},
+  {txt:'agents.legacy.task',        col:'purple', type:'agent'},
+  {txt:'voice.sess1.transcript',    col:'pink',   type:'voice'},
+  {txt:'tel.barn.soil.moisture',    col:'green',  type:'tel'},
+  {txt:'evt.threat.drone.detected', col:'red',    type:'evt'},
+  {txt:'saas.ghl.contact.request',  col:'orange', type:'saas'},
+  {txt:'tel.go2.position',          col:'yellow', type:'tel'},
+  {txt:'tel.mta.subway.A.train42',  col:'blue',   type:'tel'},
+  {txt:'cmd.go2.patrol.start',      col:'yellow', type:'cmd'},
+];
+const NODE_DEFS = [
+  {label:'Hub\n(omos-mbp)', x:0.5,  y:0.5,  r:22, col:'#00ffe5', glow:true},
+  {label:'Legacy AI',       x:0.5,  y:0.18, r:16, col:'#a855f7'},
+  {label:'iPhone ATAK',     x:0.2,  y:0.25, r:12, col:'#22c55e'},
+  {label:'Drone α',         x:0.78, y:0.22, r:12, col:'#fbbf24'},
+  {label:'Barn Pi',         x:0.12, y:0.55, r:11, col:'#34d399'},
+  {label:'Go2 Robot',       x:0.85, y:0.5,  r:12, col:'#fb923c'},
+  {label:'MTA Trains',      x:0.72, y:0.78, r:12, col:'#3b82f6'},
+  {label:'Starlink',        x:0.28, y:0.78, r:11, col:'#a78bfa'},
+  {label:'Watch Bio',       x:0.15, y:0.78, r:10, col:'#f472b6'},
+  {label:'Cloud VPS',       x:0.88, y:0.75, r:11, col:'#818cf8'},
+  {label:'OTS/TAK',         x:0.5,  y:0.82, r:12, col:'#22c55e'},
+];
+
+function resizeHero() {
+  if (!HC) return;
+  HC.width = HC.offsetWidth * window.devicePixelRatio;
+  HC.height = HC.offsetHeight * window.devicePixelRatio;
+  hctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+  heroNodes = NODE_DEFS.map(n => ({
+    ...n, px: n.x * HC.offsetWidth, py: n.y * HC.offsetHeight
+  }));
+}
+
+function hexAlpha(hex, a) {
+  const r = parseInt(hex.slice(1,3),16), g = parseInt(hex.slice(3,5),16), b = parseInt(hex.slice(5,7),16);
+  return `rgba(${r},${g},${b},${a})`;
+}
+
+function spawnMsg() {
+  if (!heroNodes.length) return;
+  const src  = heroNodes[Math.floor(Math.random()*heroNodes.length)];
+  const hub  = heroNodes[0];
+  const dst  = heroNodes[Math.floor(Math.random()*(heroNodes.length-1))+1];
+  const subj = SUBJECTS[Math.floor(Math.random()*SUBJECTS.length)];
+  heroMsgs.push({x:src.px, y:src.py, tx:hub.px, ty:hub.py, col:COLORS[subj.col], t:0, phase:0, subj, src, dst});
+  heroMsgs.push({x:hub.px, y:hub.py, tx:dst.px, ty:dst.py, col:COLORS[subj.col], t:0, phase:1, subj, src, dst, delay:0.5});
+  msgCount++;
+  document.getElementById('msg-count').textContent = Math.round(msgCount/10*12);
+}
+
+function heroFrame() {
+  if (!hctx || !HC) return;
+  const W = HC.offsetWidth, H = HC.offsetHeight;
+  hctx.clearRect(0,0,W,H);
+
+  // Grid dots
+  hctx.fillStyle = 'rgba(26,46,74,.4)';
+  for (let x=0;x<W;x+=30) for (let y=0;y<H;y+=30) { hctx.beginPath(); hctx.arc(x,y,0.7,0,Math.PI*2); hctx.fill(); }
+
+  // Connections
+  heroNodes.slice(1).forEach(n => {
+    const hub = heroNodes[0];
+    hctx.beginPath(); hctx.moveTo(hub.px, hub.py); hctx.lineTo(n.px, n.py);
+    hctx.strokeStyle='rgba(26,46,74,.6)'; hctx.lineWidth=1; hctx.stroke();
+  });
+
+  // Messages
+  heroMsgs = heroMsgs.filter(m => {
+    if (m.delay && m.t < m.delay) { m.t += 0.018; return true; }
+    const progress = Math.min((m.t - (m.delay||0)) / 0.6, 1);
+    m.x = m.src ? (m.phase===0 ? heroNodes[0].px : m.src.px) : m.tx;
+    m.y = m.src ? (m.phase===0 ? heroNodes[0].py : m.src.py) : m.ty;
+    const startX = m.phase===0 ? m.src.px : heroNodes[0].px;
+    const startY = m.phase===0 ? m.src.py : heroNodes[0].py;
+    const cx = startX + (m.tx - startX) * progress;
+    const cy = startY + (m.ty - startY) * progress;
+    hctx.beginPath(); hctx.arc(cx, cy, 4, 0, Math.PI*2);
+    hctx.fillStyle = m.col;
+    hctx.shadowColor = m.col; hctx.shadowBlur = 10;
+    hctx.fill();
+    hctx.shadowBlur = 0;
+    m.t += 0.018;
+    return progress < 1;
+  });
+
+  // Nodes
+  heroNodes.forEach((n,i) => {
+    if (n.glow) {
+      const g = hctx.createRadialGradient(n.px,n.py,0,n.px,n.py,n.r*3);
+      g.addColorStop(0,hexAlpha(n.col,.15)); g.addColorStop(1,'transparent');
+      hctx.fillStyle=g; hctx.beginPath(); hctx.arc(n.px,n.py,n.r*3,0,Math.PI*2); hctx.fill();
+    }
+    hctx.beginPath(); hctx.arc(n.px, n.py, n.r, 0, Math.PI*2);
+    hctx.fillStyle = hexAlpha(n.col, 0.15);
+    hctx.strokeStyle = n.col; hctx.lineWidth = n.glow ? 2 : 1.5;
+    hctx.fill(); hctx.stroke();
+
+    const pulse = Math.sin(Date.now()/700 + i) * 0.5 + 0.5;
+    hctx.beginPath(); hctx.arc(n.px,n.py,3+pulse*2,0,Math.PI*2);
+    hctx.fillStyle = n.col; hctx.fill();
+
+    hctx.fillStyle = '#e9f1fb'; hctx.font = `bold ${n.glow?11:9.5}px Inter,sans-serif`;
+    hctx.textAlign = 'center'; hctx.textBaseline = 'middle';
+    const lines = n.label.split('\n');
+    lines.forEach((l,li) => hctx.fillText(l, n.px, n.py + n.r + 13 + li*12));
+  });
+
+  heroAnimId = requestAnimationFrame(heroFrame);
+}
+
+// ── SUBJECT FEED SIMULATION ──────────────────────────
+let feedTelCount=0, feedCmdCount=0, feedEvtCount=0;
+function addFeedLine() {
+  const feed = document.getElementById('subject-feed');
+  if (!feed) return;
+  const subj = SUBJECTS[Math.floor(Math.random()*SUBJECTS.length)];
+  const now = new Date();
+  const ts = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}:${String(now.getSeconds()).padStart(2,'0')}`;
+  const sz  = Math.floor(Math.random()*400+20)+'B';
+  const line = document.createElement('div');
+  line.className = `sf-line ${subj.type}`;
+  line.innerHTML = `<span class="sf-time">${ts}</span><span class="sf-subj">${subj.txt}</span><span class="sf-sz">${sz}</span>`;
+  const header = feed.querySelector('.sf-header');
+  feed.insertBefore(line, header.nextSibling);
+  while (feed.children.length > 25) feed.removeChild(feed.lastChild);
+
+  if (subj.type==='tel') { feedTelCount++; const el=document.getElementById('tel-count'); if(el) el.textContent=feedTelCount+' msgs stored'; }
+  if (subj.type==='cmd') { feedCmdCount++; const el=document.getElementById('cmd-count'); if(el) el.textContent=feedCmdCount+' msgs stored'; }
+  if (subj.type==='evt') { feedEvtCount++; const el=document.getElementById('evt-count'); if(el) el.textContent=feedEvtCount+' msgs stored'; }
+}
+
+// ── NYC CANVAS SIMULATION ──────────────────────────────
+let nycAnimId, nycInit=false;
+const NYC_LINES = [
+  {name:'1',col:'#EE352E',trains:[]},{name:'2',col:'#EE352E',trains:[]},
+  {name:'A',col:'#2850AD',trains:[]},{name:'C',col:'#2850AD',trains:[]},
+  {name:'4',col:'#00933C',trains:[]},{name:'5',col:'#00933C',trains:[]},
+  {name:'L',col:'#A7A9AC',trains:[]},{name:'N',col:'#FCCC0A',trains:[]},
+  {name:'Q',col:'#FCCC0A',trains:[]},{name:'7',col:'#B933AD',trains:[]},
+];
+
+function initNYC() {
+  if (nycInit) return; nycInit=true;
+  const C = document.getElementById('nyc-canvas'); if(!C) return;
+  const ctx = C.getContext('2d');
+  C.width = C.offsetWidth * window.devicePixelRatio;
+  C.height = C.offsetHeight * window.devicePixelRatio;
+  ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+  const W = C.offsetWidth, H = C.offsetHeight;
+
+  NYC_LINES.forEach(line => {
+    const count = Math.floor(Math.random()*6)+4;
+    for (let i=0;i<count;i++) {
+      line.trains.push({
+        x: Math.random()*W*0.8+W*0.1,
+        y: Math.random()*H*0.8+H*0.1,
+        vx: (Math.random()-.5)*0.8,
+        vy: (Math.random()-.5)*0.8,
+        pulse: Math.random()*Math.PI*2,
+      });
+    }
+  });
+
+  function nycFrame() {
+    ctx.clearRect(0,0,W,H);
+    // Grid
+    ctx.strokeStyle='rgba(26,46,74,.2)'; ctx.lineWidth=1;
+    for(let x=0;x<W;x+=40){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke();}
+    for(let y=0;y<H;y+=40){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke();}
+
+    // Subway lines as rough corridors
+    ctx.strokeStyle='rgba(26,46,74,.4)'; ctx.lineWidth=2;
+    [[W*.2,0,W*.2,H],[W*.4,0,W*.4,H],[W*.6,0,W*.6,H],[W*.8,0,W*.8,H],
+     [0,H*.25,W,H*.25],[0,H*.5,W,H*.5],[0,H*.75,W,H*.75]].forEach(([x1,y1,x2,y2])=>{
+      ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.stroke();
+    });
+
+    const t = Date.now();
+    NYC_LINES.forEach(line => {
+      line.trains.forEach(tr => {
+        tr.x += tr.vx; tr.y += tr.vy;
+        if(tr.x<20||tr.x>W-20) tr.vx*=-1;
+        if(tr.y<20||tr.y>H-20) tr.vy*=-1;
+        tr.pulse += 0.05;
+
+        const pulse = Math.sin(tr.pulse)*0.5+0.5;
+        // Glow
+        const g = ctx.createRadialGradient(tr.x,tr.y,0,tr.x,tr.y,12+pulse*6);
+        g.addColorStop(0, line.col+'66'); g.addColorStop(1,'transparent');
+        ctx.fillStyle=g; ctx.beginPath(); ctx.arc(tr.x,tr.y,18,0,Math.PI*2); ctx.fill();
+
+        // Dot
+        ctx.beginPath(); ctx.arc(tr.x,tr.y,5+pulse*2,0,Math.PI*2);
+        ctx.fillStyle=line.col; ctx.shadowColor=line.col; ctx.shadowBlur=8;
+        ctx.fill(); ctx.shadowBlur=0;
+
+        // Label
+        ctx.fillStyle='#fff'; ctx.font='bold 9px Inter,sans-serif';
+        ctx.textAlign='center'; ctx.textBaseline='middle';
+        ctx.fillText(line.name,tr.x,tr.y);
+      });
+    });
+
+    // Title
+    ctx.fillStyle='rgba(0,255,229,.7)'; ctx.font='bold 11px JetBrains Mono,monospace';
+    ctx.textAlign='left'; ctx.textBaseline='top';
+    ctx.fillText(`NATS: tel.mta.subway.* | ${NYC_LINES.reduce((a,l)=>a+l.trains.length,0)} trains tracked live`, 14, 14);
+
+    nycAnimId = requestAnimationFrame(nycFrame);
+  }
+  nycFrame();
+}
+
+// ── INIT ──────────────────────────────────────────────
+window.addEventListener('DOMContentLoaded', () => {
+  resizeHero();
+  window.addEventListener('resize', () => { resizeHero(); });
+  heroFrame();
+  setInterval(spawnMsg, 200);
+  setInterval(addFeedLine, 600);
+  // Animate lat bars after short delay
+  setTimeout(() => {
+    document.querySelectorAll('.lat-fill').forEach(el => {
+      const w = el.style.width; el.style.width='0'; 
+      setTimeout(()=>{el.style.width=w;},100);
+    });
+  }, 300);
+});
+</script>
+</body>
+</html>
